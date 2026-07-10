@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>IncuBot 2.0 — National Startup Incubator &amp; Fiscal Arbitrage</title>
+
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ── CSS Custom Properties ── */
+    :root {
+      --bg-base:        #0d0f14;
+      --bg-surface:     #141720;
+      --bg-elevated:    #1a1f2e;
+      --border:         rgba(255,255,255,0.08);
+      --border-hover:   rgba(79,156,249,0.35);
+      --text-primary:   #edf0f7;
+      --text-secondary: #a8b3c9;
+      --text-muted:     #6b7a99;
+      --accent-blue:    #4f9cf9;
+      --accent-violet:  #8b5cf6;
+      --accent-teal:    #2dd4bf;
+      --accent-amber:   #f59e0b;
+      --accent-rose:    #f43f5e;
+      --glass-bg:       rgba(26,31,46,0.72);
+      --glass-border:   rgba(255,255,255,0.07);
+      --shadow-card:    0 4px 32px rgba(0,0,0,0.45);
+      --radius-card:    14px;
+      --radius-sm:      8px;
+      --navbar-h:       60px;
+    }
+    [data-theme="light"] {
+      --bg-base:        #f0f2f8;
+      --bg-surface:     #ffffff;
+      --bg-elevated:    #f7f8fc;
+      --border:         rgba(0,0,0,0.08);
+      --border-hover:   rgba(79,156,249,0.5);
+      --text-primary:   #111827;
+      --text-secondary: #374151;
+      --text-muted:     #6b7280;
+      --glass-bg:       rgba(255,255,255,0.82);
+      --glass-border:   rgba(0,0,0,0.07);
+      --shadow-card:    0 4px 24px rgba(0,0,0,0.10);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg-base);
+      color: var(--text-primary);
+      font-size: 14px;
+      line-height: 1.65;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Scrollbar ── */
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--accent-blue); }
+
+    /* ── Glass Card ── */
+    .glass-card {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-card);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      box-shadow: var(--shadow-card);
+      padding: 20px;
+      transition: border-color 0.22s, box-shadow 0.22s;
+    }
+    .glass-card:hover {
+      border-color: var(--border-hover);
+      box-shadow: 0 6px 40px rgba(79,156,249,0.12);
+    }
+
+    /* ── Navbar ── */
+    .main-navbar {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      height: var(--navbar-h);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 28px;
+      background: rgba(13,15,20,0.88);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+    }
+    [data-theme="light"] .main-navbar {
+      background: rgba(240,242,248,0.92);
+    }
+
+    .brand-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .brand-logo .logo-icon {
+      width: 34px; height: 34px;
+      background: linear-gradient(135deg, var(--accent-blue), var(--accent-violet));
+      border-radius: 9px;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: 15px; color: #fff; letter-spacing: -0.5px;
+    }
+    .brand-logo .logo-text { font-size: 16px; font-weight: 700; color: var(--text-primary); }
+    .brand-logo .logo-text span { color: var(--accent-blue); }
+
+    .nav-actions { display: flex; align-items: center; gap: 10px; }
+
+    /* ── Health Badge ── */
+    .nav-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 12px; font-weight: 600;
+      background: rgba(45,212,191,0.12);
+      color: var(--accent-teal);
+      border: 1px solid rgba(45,212,191,0.25);
+    }
+    .nav-badge .pulse-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--accent-teal);
+      animation: pulse-dot 1.8s ease-in-out infinite;
+    }
+    .nav-badge.offline {
+      background: rgba(244,63,94,0.12);
+      color: var(--accent-rose);
+      border-color: rgba(244,63,94,0.25);
+    }
+    .nav-badge.offline .pulse-dot { background: var(--accent-rose); animation: none; }
+    @keyframes pulse-dot {
+      0%,100% { opacity: 1; transform: scale(1); }
+      50%      { opacity: 0.45; transform: scale(1.35); }
+    }
+
+    .nav-links a {
+      font-size: 13px; font-weight: 500;
+      color: var(--text-muted); text-decoration: none;
+      transition: color 0.18s;
+    }
+    .nav-links a:hover { color: var(--accent-blue); }
+
+    .theme-btn {
+      background: var(--bg-elevated); border: 1px solid var(--border);
+      border-radius: var(--radius-sm); padding: 7px 10px;
+      color: var(--text-secondary); cursor: pointer;
+      transition: all 0.18s; font-size: 14px; line-height: 1;
+    }
+    .theme-btn:hover { border-color: var(--accent-blue); color: var(--accent-blue); }
+
+    /* ── Hero ── */
+    .hero-banner {
+      padding: 52px 0 36px;
+      background: radial-gradient(ellipse 70% 50% at 60% 40%, rgba(79,156,249,0.07) 0%, transparent 70%),
+                  radial-gradient(ellipse 50% 40% at 80% 80%, rgba(139,92,246,0.06) 0%, transparent 60%);
+      border-bottom: 1px solid var(--border);
+    }
+    .hero-title {
+      font-size: clamp(26px, 4vw, 42px);
+      font-weight: 800; line-height: 1.18; letter-spacing: -0.8px;
+      color: var(--text-primary);
+    }
+    .hero-title .accent { color: var(--accent-blue); }
+    .hero-subtitle {
+      font-size: 15px; color: var(--text-secondary);
+      max-width: 640px; margin-top: 14px; line-height: 1.7;
+    }
+    .hero-pills { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
+    .hero-pill {
+      display: inline-flex; align-items: center; gap: 7px;
+      padding: 5px 13px; border-radius: 20px;
+      background: var(--bg-elevated); border: 1px solid var(--border);
+      font-size: 12px; font-weight: 500; color: var(--text-secondary);
+    }
+    .hero-pill .dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--accent-teal); flex-shrink: 0;
+    }
+
+    /* ── Section Labels ── */
+    .section-label {
+      font-size: 11px; font-weight: 700; letter-spacing: 1.2px;
+      text-transform: uppercase; color: var(--accent-blue); margin-bottom: 6px;
+    }
+    .section-title {
+      font-size: clamp(18px, 2.5vw, 24px); font-weight: 700;
+      color: var(--text-primary); letter-spacing: -0.3px;
+    }
+    .section-desc {
+      font-size: 13.5px; color: var(--text-muted);
+      max-width: 680px; margin-top: 6px;
+    }
+
+    /* ── Policy Strip ── */
+    .policy-strip {
+      display: flex; flex-wrap: wrap; align-items: center; gap: 0;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border); border-radius: var(--radius-card);
+      overflow: hidden;
+    }
+    .policy-item {
+      display: flex; flex-direction: column;
+      padding: 14px 20px; flex: 1; min-width: 130px;
+    }
+    .policy-item-label { font-size: 10.5px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-muted); }
+    .policy-item-value { font-size: 15px; font-weight: 700; color: var(--text-primary); margin-top: 3px; font-family: 'JetBrains Mono', monospace; }
+    .policy-divider { width: 1px; background: var(--border); align-self: stretch; }
+    @media (max-width: 600px) { .policy-divider { display: none; } .policy-item { border-bottom: 1px solid var(--border); } }
+
+    /* ── KPI Cards ── */
+    .kpi-card {
+      padding: 18px; position: relative; overflow: hidden;
+    }
+    .kpi-card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--accent-blue), var(--accent-violet));
+      border-radius: var(--radius-card) var(--radius-card) 0 0;
+    }
+    .kpi-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-muted); }
+    .kpi-value { font-size: 26px; font-weight: 800; color: var(--text-primary); letter-spacing: -0.6px; margin: 6px 0 4px; font-family: 'JetBrains Mono', monospace; }
+    .kpi-delta { font-size: 11.5px; font-weight: 600; }
+    .kpi-delta.up      { color: var(--accent-teal); }
+    .kpi-delta.down    { color: var(--accent-rose); }
+    .kpi-delta.neutral { color: var(--accent-amber); }
+
+    /* ── Split Dashboard ── */
+    .dashboard-split {
+      display: grid;
+      grid-template-columns: 1fr 400px;
+      gap: 24px;
+      align-items: start;
+    }
+    @media (max-width: 1180px) { .dashboard-split { grid-template-columns: 1fr; } }
+
+    /* ── Chat Panel ── */
+    .chat-panel { position: sticky; top: calc(var(--navbar-h) + 16px); }
+    .chat-header {
+      display: flex; align-items: center; gap: 12px;
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+    }
+    .chat-icon {
+      width: 38px; height: 38px; border-radius: 10px;
+      background: linear-gradient(135deg, var(--accent-blue), var(--accent-violet));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; color: #fff; flex-shrink: 0;
+    }
+    .chat-title { font-size: 14px; font-weight: 700; color: var(--text-primary); }
+    .chat-subtitle { font-size: 11px; color: var(--text-muted); margin-top: 1px; }
+    .chat-live-dot {
+      width: 9px; height: 9px; border-radius: 50%;
+      background: var(--accent-teal); margin-left: auto; flex-shrink: 0;
+      animation: pulse-dot 1.8s ease-in-out infinite;
+    }
+
+    /* ── wxO Root mount ── */
+    #root {
+      width: 100%; min-height: 560px;
+      position: relative; overflow: hidden;
+    }
+    #root > * { width: 100% !important; height: 100% !important; }
+
+    /* ── Spinner (shown until widget loads) ── */
+    .chat-loading {
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 14px; min-height: 400px;
+      color: var(--text-muted); font-size: 13px;
+    }
+    .spinner {
+      width: 32px; height: 32px;
+      border: 3px solid var(--border);
+      border-top-color: var(--accent-blue);
+      border-radius: 50%;
+      animation: spin 0.9s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Arbitrage Table ── */
+    .arbitrage-table-wrap { overflow-x: auto; }
+    .arbitrage-table { width: 100%; border-collapse: collapse; white-space: nowrap; }
+    .arbitrage-table th {
+      padding: 11px 14px; font-size: 11px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.7px;
+      color: var(--text-muted); background: transparent;
+      border-bottom: 1px solid var(--border); text-align: left;
+    }
+    .arbitrage-table td {
+      padding: 12px 14px; font-size: 13px;
+      color: var(--text-secondary);
+      border-bottom: 1px solid var(--border);
+      transition: background 0.15s;
+    }
+    .arbitrage-table tr:last-child td { border-bottom: none; }
+    .arbitrage-table tbody tr:hover td { background: rgba(79,156,249,0.04); }
+
+    .tier-badge {
+      display: inline-block; padding: 3px 9px; border-radius: 20px;
+      font-size: 11px; font-weight: 600; white-space: nowrap;
+    }
+    .tier-badge.top-performer { background: rgba(45,212,191,0.13); color: var(--accent-teal); }
+    .tier-badge.emerging      { background: rgba(245,158,11,0.13);  color: var(--accent-amber); }
+    .tier-badge.special       { background: rgba(244,63,94,0.13);   color: var(--accent-rose); }
+
+    .score-bar-wrap { display: flex; align-items: center; gap: 8px; }
+    .score-bar { flex: 1; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+    .score-bar-fill {
+      height: 100%; border-radius: 3px;
+      background: linear-gradient(90deg, var(--accent-blue), var(--accent-teal));
+      transition: width 1s cubic-bezier(.16,1,.3,1);
+      width: 0;
+    }
+    .score-val { font-size: 12px; font-weight: 700; color: var(--accent-blue); width: 28px; text-align: right; font-family: 'JetBrains Mono', monospace; }
+
+    /* ── 9-Pillar Canvas ── */
+    .canvas-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+    @media (max-width: 768px) { .canvas-grid { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 480px) { .canvas-grid { grid-template-columns: 1fr; } }
+
+    .pillar-card {
+      padding: 18px; cursor: default;
+      position: relative; overflow: hidden;
+    }
+    .pillar-card::after {
+      content: ''; position: absolute;
+      bottom: 0; left: 0; right: 0; height: 2px;
+      background: linear-gradient(90deg, var(--accent-violet), var(--accent-blue));
+      transform: scaleX(0); transform-origin: left;
+      transition: transform 0.3s ease;
+    }
+    .pillar-card:hover::after { transform: scaleX(1); }
+    .pillar-num { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 8px; }
+    .pillar-icon { font-size: 22px; display: block; margin-bottom: 8px; }
+    .pillar-name { font-size: 13px; font-weight: 700; color: var(--text-primary); margin-bottom: 6px; }
+    .pillar-desc { font-size: 12px; color: var(--text-muted); line-height: 1.55; }
+
+    /* ── MVP Stack ── */
+    .stack-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 12px;
+    }
+    .stack-layer-label {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 11px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.8px; color: var(--text-muted);
+      margin-bottom: 12px;
+    }
+    .stack-layer-label .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .stack-item {
+      padding: 9px 0; font-size: 13px; font-weight: 500;
+      color: var(--text-secondary);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 8px;
+    }
+    .stack-item:last-child { border-bottom: none; }
+    .stack-item::before {
+      content: ''; width: 5px; height: 5px; border-radius: 50%;
+      background: var(--border); flex-shrink: 0;
+    }
+
+    /* ── Roadmap ── */
+    .roadmap-track {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+    }
+    @media (max-width: 900px) { .roadmap-track { grid-template-columns: repeat(3, 1fr); } }
+    @media (max-width: 600px) { .roadmap-track { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 400px) { .roadmap-track { grid-template-columns: 1fr; } }
+
+    .roadmap-node {
+      padding: 20px 16px;
+      border-right: 1px solid var(--border);
+      position: relative;
+    }
+    .roadmap-node:last-child { border-right: none; }
+    .roadmap-node::before {
+      content: ''; position: absolute;
+      top: 0; left: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg, var(--accent-blue), var(--accent-violet));
+      opacity: 0; transition: opacity 0.22s;
+    }
+    .roadmap-node:hover::before { opacity: 1; }
+    .roadmap-month { font-size: 11px; font-weight: 700; color: var(--accent-blue); margin-bottom: 4px; font-family: 'JetBrains Mono', monospace; }
+    .roadmap-phase { font-size: 14px; font-weight: 700; color: var(--text-primary); margin-bottom: 8px; }
+    .roadmap-milestone { font-size: 12px; color: var(--text-muted); line-height: 1.55; }
+
+    /* ── Prompt Chips ── */
+    .chip-prompt {
+      padding: 8px 12px; border-radius: var(--radius-sm);
+      background: var(--bg-elevated); border: 1px solid var(--border);
+      font-size: 12px; color: var(--text-secondary); cursor: pointer;
+      transition: border-color 0.18s, color 0.18s;
+    }
+    .chip-prompt:hover { border-color: var(--accent-blue); color: var(--accent-blue); }
+
+    /* ── Footer ── */
+    .main-footer {
+      border-top: 1px solid var(--border);
+      padding: 20px 28px;
+      display: flex; justify-content: space-between;
+      align-items: center; flex-wrap: wrap; gap: 10px;
+      font-size: 12px; color: var(--text-muted);
+      background: var(--bg-surface);
+    }
+    .footer-brand { font-weight: 700; color: var(--accent-blue); }
+
+    /* ── Layout Container ── */
+    .container-dash { max-width: 1480px; margin: 0 auto; padding: 0 28px; }
+    @media (max-width: 768px) { .container-dash { padding: 0 16px; } }
+
+    /* ── Fade-in Scroll Animation ── */
+    .fade-in { opacity: 0; transform: translateY(18px); transition: opacity 0.55s ease, transform 0.55s ease; }
+    .fade-in.visible { opacity: 1; transform: translateY(0); }
+
+    /* ── HR Accent ── */
+    .hr-accent { border: none; border-top: 1px solid var(--border); margin: 36px 0; }
+
+    /* ── Mono util ── */
+    .mono { font-family: 'JetBrains Mono', monospace; }
+    .text-accent-blue   { color: var(--accent-blue)   !important; }
+    .text-accent-violet { color: var(--accent-violet) !important; }
+    .text-accent-teal   { color: var(--accent-teal)   !important; }
+    .text-accent-amber  { color: var(--accent-amber)  !important; }
+    .text-muted-custom  { color: var(--text-muted)    !important; }
+
+    /* ── Section spacing ── */
+    .section-block { padding: 36px 0; }
+  </style>
+</head>
+
+<body>
+
+  <!-- ══════════ NAVBAR ══════════ -->
+  <nav class="main-navbar">
+    <a href="#" class="brand-logo">
+      <div class="logo-icon">I</div>
+      <span class="logo-text">Incu<span>Bot</span> 2.0</span>
+    </a>
+
+    <div class="nav-links d-none d-md-flex align-items-center gap-4">
+      <a href="#kpis">Overview</a>
+      <a href="#arbitrage">Arbitrage</a>
+      <a href="#canvas">Canvas</a>
+      <a href="#stack">Stack</a>
+      <a href="#roadmap">Roadmap</a>
+    </div>
+
+    <div class="nav-actions">
+      {% if ai_connected %}
+      <span class="nav-badge">
+        <span class="pulse-dot"></span>
+        AI: Connected
+      </span>
+      {% else %}
+      <span class="nav-badge offline">
+        <span class="pulse-dot"></span>
+        AI: Set FLASK_SECRET_KEY
+      </span>
+      {% endif %}
+      <button class="theme-btn" id="themeToggle" title="Toggle dark / light mode">
+        <i class="bi bi-moon-fill" id="themeIcon"></i>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ══════════ HERO ══════════ -->
+  <div class="hero-banner">
+    <div class="container-dash">
+      <p class="section-label"><i class="bi bi-geo-alt-fill me-1"></i>India · DPIIT National Report 2026</p>
+      <h1 class="hero-title">
+        National Startup <span class="accent">Incubator</span><br>
+        &amp; Cross-State <span class="accent">Fiscal Arbitrage</span>
+      </h1>
+      <p class="hero-subtitle">
+        AI-powered policy intelligence anchored to DPIIT FY 2025–26 parameters.
+        Compare grant stacks, SISFS caps, and 80-IAC tax holidays across India's startup ecosystems.
+      </p>
+      <div class="hero-pills">
+        <div class="hero-pill"><span class="dot"></span>SISFS Seed Cap: ₹ 75L</div>
+        <div class="hero-pill"><span class="dot" style="background:var(--accent-blue)"></span>FFS Corpus: ₹ 10,000 Cr</div>
+        <div class="hero-pill"><span class="dot" style="background:var(--accent-violet)"></span>80-IAC Tax Holiday: 3 / 10 yrs</div>
+        <div class="hero-pill"><span class="dot" style="background:var(--accent-amber)"></span>Active States: 31</div>
+        <div class="hero-pill"><span class="dot" style="background:var(--accent-rose)"></span>IBM Watsonx Orchestrate</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ POLICY STRIP ══════════ -->
+  <div class="container-dash" style="padding-top:20px;padding-bottom:4px;">
+    <div class="policy-strip fade-in">
+      <div class="policy-item">
+        <span class="policy-item-label">PoC Grant Cap</span>
+        <span class="policy-item-value">₹ 20L</span>
+      </div>
+      <div class="policy-divider"></div>
+      <div class="policy-item">
+        <span class="policy-item-label">Prototype Cap</span>
+        <span class="policy-item-value">₹ 50L</span>
+      </div>
+      <div class="policy-divider"></div>
+      <div class="policy-item">
+        <span class="policy-item-label">FFS / Market Entry</span>
+        <span class="policy-item-value">₹ 75L</span>
+      </div>
+      <div class="policy-divider"></div>
+      <div class="policy-item">
+        <span class="policy-item-label">FFS Corpus (SIDBI)</span>
+        <span class="policy-item-value">₹ 10,000 Cr</span>
+      </div>
+      <div class="policy-divider"></div>
+      <div class="policy-item">
+        <span class="policy-item-label">80-IAC Holiday</span>
+        <span class="policy-item-value">3 of 10 Yrs</span>
+      </div>
+      <div class="policy-divider"></div>
+      <div class="policy-item">
+        <span class="policy-item-label">Source</span>
+        <span class="policy-item-value" style="font-size:11px;letter-spacing:0;">DPIIT-Report-15-01-26</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ KPI CARDS ══════════ -->
+  <section id="kpis" class="container-dash section-block fade-in">
+    <p class="section-label">Platform KPIs</p>
+    <h2 class="section-title">National Ecosystem Snapshot</h2>
+    <p class="section-desc">Live metrics anchored to DPIIT FY 2025–26 data.</p>
+    <div class="row g-3 mt-2">
+      {% for kpi in kpi_cards %}
+      <div class="col-6 col-md-4 col-xl-2">
+        <div class="glass-card kpi-card h-100">
+          <div class="kpi-label">{{ kpi.label }}</div>
+          <div class="kpi-value mono">{{ kpi.value }}</div>
+          <div class="kpi-delta {{ kpi.trend }}">
+            {% if kpi.trend == 'up' %}<i class="bi bi-arrow-up-right"></i>
+            {% elif kpi.trend == 'down' %}<i class="bi bi-arrow-down-right"></i>
+            {% else %}<i class="bi bi-dash"></i>{% endif %}
+            {{ kpi.delta }}
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+
+  <hr class="hr-accent container-dash" style="margin:0 28px;" />
+
+  <!-- ══════════ SPLIT LAYOUT: LEFT PANELS + RIGHT CHAT ══════════ -->
+  <div class="container-dash" style="padding-top:28px;padding-bottom:40px;">
+    <div class="dashboard-split">
+
+      <!-- ─── LEFT COLUMN ─── -->
+      <div>
+
+        <!-- ARBITRAGE MATRIX -->
+        <section id="arbitrage" class="section-block fade-in" style="padding-top:0;">
+          <p class="section-label">Cross-State Intelligence</p>
+          <h2 class="section-title">Fiscal Arbitrage Comparison Matrix</h2>
+          <p class="section-desc">
+            Grant stack, tax holiday, incubator density and DPIIT-mandated single-window
+            portals compared across Emerging Ecosystems and Top Performers.
+          </p>
+          <div class="glass-card mt-3 p-0" style="overflow:hidden;">
+            <div class="arbitrage-table-wrap p-0">
+              <table class="arbitrage-table">
+                <thead>
+                  <tr>
+                    <th>State</th>
+                    <th>Tier</th>
+                    <th>Grant Stack (₹ Cr)</th>
+                    <th>Tax Holiday</th>
+                    <th>Incubators</th>
+                    <th>Seed Disbursed (₹ Cr)</th>
+                    <th>Single Window</th>
+                    <th>Arbitrage Score</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for s in state_matrix %}
+                  <tr>
+                    <td><strong style="color:var(--text-primary)">{{ s.state }}</strong></td>
+                    <td>
+                      {% if s.tier == 'Top Performer' %}
+                        <span class="tier-badge top-performer">Top Performer</span>
+                      {% elif s.tier == 'Emerging' %}
+                        <span class="tier-badge emerging">Emerging</span>
+                      {% else %}
+                        <span class="tier-badge special">{{ s.tier }}</span>
+                      {% endif %}
+                    </td>
+                    <td class="mono text-accent-teal">{{ s.grant_stack_cr }}</td>
+                    <td class="mono">{{ s.tax_holiday_yrs }} yrs</td>
+                    <td class="mono">{{ s.incubators }}</td>
+                    <td class="mono text-accent-amber">{{ s.seed_disbursed_cr }}</td>
+                    <td>
+                      <a href="https://{{ s.portal }}" target="_blank" rel="noopener"
+                         style="color:var(--accent-blue);text-decoration:none;font-size:12px;">
+                        {{ s.single_window }}&nbsp;<i class="bi bi-arrow-up-right" style="font-size:9px;"></i>
+                      </a>
+                    </td>
+                    <td>
+                      <div class="score-bar-wrap">
+                        <div class="score-bar">
+                          <div class="score-bar-fill" data-score="{{ s.arbitrage_score }}"></div>
+                        </div>
+                        <span class="score-val">{{ s.arbitrage_score }}</span>
+                      </div>
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <p style="font-size:11px;color:var(--text-muted);margin-top:8px;">
+            <i class="bi bi-info-circle me-1"></i>
+            Scores computed from grant stack (state + centre), 80-IAC holiday, real-estate subsidy delta &amp;
+            talent pipeline density per DPIIT Table 7 Annex III.
+          </p>
+        </section>
+
+        <hr class="hr-accent" />
+
+        <!-- 9-PILLAR CANVAS -->
+        <section id="canvas" class="section-block fade-in">
+          <p class="section-label">Business Model</p>
+          <h2 class="section-title">9-Pillar Business Model Canvas</h2>
+          <p class="section-desc">
+            Structured around Osterwalder's canonical framework, grounded in India's startup policy landscape.
+          </p>
+          <div class="canvas-grid mt-3">
+            {% for p in nine_pillars %}
+            <div class="glass-card pillar-card">
+              <div class="pillar-num">Pillar {{ p.id }}</div>
+              <span class="pillar-icon">{{ p.icon }}</span>
+              <div class="pillar-name">{{ p.name }}</div>
+              <div class="pillar-desc">{{ p.desc }}</div>
+            </div>
+            {% endfor %}
+          </div>
+        </section>
+
+        <hr class="hr-accent" />
+
+        <!-- MVP TECHNICAL STACK -->
+        <section id="stack" class="section-block fade-in">
+          <p class="section-label">MVP Architecture</p>
+          <h2 class="section-title">Technical Stack &amp; Infrastructure</h2>
+          <p class="section-desc">
+            Recommended development frameworks spanning frontend, backend, AI layer, cloud infra, and DevOps.
+          </p>
+          {% set layer_meta = {
+            'frontend':  {'label': 'Frontend',    'color': '#4f9cf9'},
+            'backend':   {'label': 'Backend',     'color': '#8b5cf6'},
+            'ai_layer':  {'label': 'AI Layer',    'color': '#2dd4bf'},
+            'infra':     {'label': 'Infra',       'color': '#f59e0b'},
+            'devops':    {'label': 'DevOps',      'color': '#f43f5e'}
+          } %}
+          <div class="stack-grid mt-3">
+            {% for layer_key, items in mvp_stack.items() %}
+            <div class="glass-card" style="padding:18px;">
+              <div class="stack-layer-label">
+                <span class="dot" style="background:{{ layer_meta[layer_key]['color'] }}"></span>
+                {{ layer_meta[layer_key]['label'] }}
+              </div>
+              {% for item in items %}
+              <div class="stack-item">{{ item }}</div>
+              {% endfor %}
+            </div>
+            {% endfor %}
+          </div>
+        </section>
+
+        <hr class="hr-accent" />
+
+        <!-- 6-MONTH ROADMAP -->
+        <section id="roadmap" class="section-block fade-in">
+          <p class="section-label">Product Timeline</p>
+          <h2 class="section-title">6-Month MVP Release Roadmap</h2>
+          <p class="section-desc">
+            Phased milestones from Foundation to General Availability launch, targeting SIDBI partnership MoU.
+          </p>
+          <div class="glass-card mt-3 p-0" style="overflow:hidden;">
+            <div class="roadmap-track">
+              {% for node in roadmap %}
+              <div class="roadmap-node">
+                <div class="roadmap-month mono">{{ node.month }}</div>
+                <div class="roadmap-phase">{{ node.phase }}</div>
+                <div class="roadmap-milestone">{{ node.milestone }}</div>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+        </section>
+
+      </div><!-- /left column -->
+
+      <!-- ─── RIGHT COLUMN: Watsonx Orchestrate Chat ─── -->
+      <div class="chat-panel">
+
+        <!-- Chat widget card -->
+        <div class="glass-card p-0" style="overflow:hidden;">
+          <div class="chat-header">
+            <div class="chat-icon">
+              <i class="bi bi-robot"></i>
+            </div>
+            <div>
+              <div class="chat-title">Watsonx Orchestrate</div>
+              <div class="chat-subtitle">IncuBot AI · DPIIT Policy Advisor</div>
+            </div>
+            <div class="chat-live-dot" title="Live — Watsonx Orchestrate connected"></div>
+          </div>
+
+          <!-- IBM wxO loader mounts into #root -->
+          <div id="root">
+            <div class="chat-loading" id="chatLoadingSpinner">
+              <div class="spinner"></div>
+              <span>Connecting to Watsonx Orchestrate…</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Suggested Prompt Chips -->
+        <div class="glass-card mt-3 p-3">
+          <div style="font-size:12px;font-weight:700;color:var(--text-primary);margin-bottom:10px;">
+            <i class="bi bi-lightbulb-fill text-accent-amber me-1"></i>Try asking…
+          </div>
+          <div class="d-flex flex-column gap-2">
+            <div class="chip-prompt" onclick="sendChipPrompt(this)">What is the SISFS prototype development grant cap?</div>
+            <div class="chip-prompt" onclick="sendChipPrompt(this)">Compare Karnataka vs UP on fiscal arbitrage score.</div>
+            <div class="chip-prompt" onclick="sendChipPrompt(this)">How do I apply via Nivesh Mitra portal in UP?</div>
+            <div class="chip-prompt" onclick="sendChipPrompt(this)">Explain the 80-IAC tax holiday benefit for startups.</div>
+          </div>
+        </div>
+
+      </div><!-- /right column -->
+
+    </div><!-- /dashboard-split -->
+  </div>
+
+  <!-- ══════════ FOOTER ══════════ -->
+  <footer class="main-footer">
+    <div>
+      <span class="footer-brand">IncuBot 2.0</span>
+      &nbsp;·&nbsp; National Startup Incubator &amp; Cross-State Fiscal Arbitrage
+      &nbsp;·&nbsp; Powered by IBM Watsonx Orchestrate
+    </div>
+    <div style="color:var(--text-muted);">
+      &copy; {{ current_year }} &nbsp;·&nbsp; DPIIT National-Report-15-01-26 Anchored
+    </div>
+  </footer>
+
+  <!-- ══════════ SCRIPTS ══════════ -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- IBM Watsonx Orchestrate Web Chat Client Widget -->
+  <script>
+    window.wxOConfiguration = {
+      orchestrationID: "afdae2d0d2954fd9b147ed0ca2a25d7c_dfb0e320-6c77-4ff1-ba3e-79c65375d473",
+      hostURL: "https://us-south.watson-orchestrate.cloud.ibm.com",
+      rootElementID: "root",
+      deploymentPlatform: "ibmcloud",
+      crn: "crn:v1:bluemix:public:watsonx-orchestrate:us-south:a/afdae2d0d2954fd9b147ed0ca2a25d7c:dfb0e320-6c77-4ff1-ba3e-79c65375d473::",
+      chatOptions: {
+          agentId: "f614cd44-3a92-4231-8834-8bd8c552aea2", 
+      }
+    };
+    setTimeout(function () {
+      const script = document.createElement('script');
+      script.src = `${window.wxOConfiguration.hostURL}/wxochat/wxoLoader.js?embed=true`;
+      script.addEventListener('load', function () {
+          wxoLoader.init();
+          // Hide spinner once widget loads
+          const spinner = document.getElementById('chatLoadingSpinner');
+          if (spinner) spinner.style.display = 'none';
+      });
+      document.head.appendChild(script);
+    }, 0);
+  </script>
+
+  <!-- Theme Toggle -->
+  <script>
+    const themeToggle = document.getElementById('themeToggle');
+    const themeIcon   = document.getElementById('themeIcon');
+    const html        = document.documentElement;
+
+    function applyTheme(theme) {
+      html.setAttribute('data-theme', theme);
+      themeIcon.className = theme === 'dark' ? 'bi bi-moon-fill' : 'bi bi-sun-fill';
+      localStorage.setItem('incubot-theme', theme);
+    }
+
+    // Restore persisted theme
+    applyTheme(localStorage.getItem('incubot-theme') || 'dark');
+
+    themeToggle.addEventListener('click', function () {
+      applyTheme(html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+    });
+  </script>
+
+  <!-- Scroll Fade-in -->
+  <script>
+    const fadeEls = document.querySelectorAll('.fade-in');
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); } });
+    }, { threshold: 0.07 });
+    fadeEls.forEach(el => io.observe(el));
+  </script>
+
+  <!-- Animate arbitrage score bars when in view -->
+  <script>
+    const scoreObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.querySelectorAll('.score-bar-fill').forEach(bar => {
+            bar.style.width = bar.dataset.score + '%';
+          });
+          scoreObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.2 });
+    const arbitrageSection = document.querySelector('#arbitrage');
+    if (arbitrageSection) scoreObserver.observe(arbitrageSection);
+  </script>
+
+  <!-- Chip prompt handler (copies text to chat widget input if accessible) -->
+  <script>
+    function sendChipPrompt(el) {
+      const text = el.textContent.trim();
+      // Attempt to route into the wxO chat input if the widget exposes it
+      const chatInput = document.querySelector('#root input[type="text"], #root textarea');
+      if (chatInput) {
+        chatInput.value = text;
+        chatInput.dispatchEvent(new Event('input', { bubbles: true }));
+        chatInput.focus();
+      }
+    }
+  </script>
+
+</body>
+</html>
